@@ -44,10 +44,10 @@ export default function FileUploader() {
       onClick={() => fileInputRef.current?.click()}
       className={`
         relative cursor-pointer rounded-2xl border-2 border-dashed p-8 sm:p-12
-        transition-all duration-300 text-center
+        transition-all duration-300 text-center shadow-sm
         ${isDragging
-          ? 'drop-active border-lavender-400 bg-lavender-50 dark:bg-lavender-600/10'
-          : 'border-warm-300 dark:border-warm-600 hover:border-lavender-400 hover:bg-lavender-50/50 dark:hover:bg-warm-800/50'
+          ? 'drop-active border-lavender-400 bg-lavender-50 shadow-lg shadow-lavender-500/10 dark:bg-lavender-600/10'
+          : 'border-lavender-200 dark:border-warm-600 hover:border-lavender-400 hover:bg-lavender-50/50 hover:shadow-md hover:shadow-lavender-500/10 dark:hover:bg-warm-800/50'
         }
       `}
     >

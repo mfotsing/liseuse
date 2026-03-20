@@ -59,9 +59,9 @@ export default function AudioControls({
         <button
           onClick={handlePlayPause}
           disabled={!text}
-          className="p-3 sm:p-4 rounded-full bg-lavender-500 text-white
-            hover:bg-lavender-600 active:scale-95 disabled:opacity-40
-            disabled:cursor-not-allowed transition-all shadow-lg shadow-lavender-500/25"
+          className="p-3 sm:p-4 rounded-full bg-gradient-to-br from-lavender-500 to-lavender-700 text-white
+            hover:from-lavender-600 hover:to-lavender-700 active:scale-95 disabled:opacity-40
+            disabled:cursor-not-allowed transition-all shadow-lg shadow-lavender-600/30"
           title={isPlaying && !isPaused ? 'Pause (Espace)' : 'Play (Espace)'}
         >
           {isPlaying && !isPaused ? (

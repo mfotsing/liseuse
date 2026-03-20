@@ -76,8 +76,8 @@ export default function App() {
         </div>
 
         {/* Controls footer */}
-        <footer className="border-t border-warm-200 dark:border-warm-700 px-4 py-3 space-y-3
-          bg-warm-50 dark:bg-warm-800/50">
+        <footer className="border-t border-lavender-100 dark:border-warm-700 px-4 py-3 space-y-3
+          bg-gradient-to-t from-lavender-50/80 to-white dark:from-warm-800/80 dark:to-warm-900">
           <ProgressBar
             sentences={speech.sentences}
             currentSentenceIndex={speech.currentSentenceIndex}
@@ -107,7 +107,7 @@ export default function App() {
 
   // Home view
   return (
-    <div className="min-h-screen bg-warm-50 dark:bg-warm-900 transition-colors">
+    <div className="min-h-screen bg-gradient-to-b from-lavender-50 via-white to-warm-50 dark:from-warm-900 dark:via-warm-900 dark:to-warm-800 transition-colors">
       <header className="flex items-center justify-between px-4 sm:px-6 py-4">
         <div />
         <Settings />
@@ -115,8 +115,8 @@ export default function App() {
 
       <main className="px-4 sm:px-6 pb-12 max-w-2xl mx-auto">
         <div className="text-center mb-8 sm:mb-12 mt-8 sm:mt-16">
-          <h1 className="text-3xl sm:text-4xl font-semibold text-warm-800 dark:text-warm-100 mb-2">
-            Liseuse
+          <h1 className="text-3xl sm:text-4xl font-semibold text-lavender-700 dark:text-lavender-300 mb-2">
+            Liseuse de Loupiotte
           </h1>
           <p className="text-warm-500 dark:text-warm-400">
             Écoutez vos documents, simplement.
@@ -147,6 +147,10 @@ export default function App() {
 
         <p className="text-center text-xs text-warm-400 dark:text-warm-600 mt-12">
           Tout reste sur votre appareil. Aucune donnée n'est envoyée.
+        </p>
+
+        <p className="text-center text-xs text-lavender-400 dark:text-lavender-500 mt-4">
+          Fait avec amour par Doudou
         </p>
       </main>
     </div>
