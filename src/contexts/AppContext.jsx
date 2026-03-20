@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { docId, saveToLibrary } from '../lib/storage'
 
 const AppContext = createContext()
 
@@ -9,7 +10,10 @@ export function AppProvider({ children }) {
   const [pages, setPages] = useState([])
   const [currentPage, setCurrentPage] = useState(0)
   const [fileName, setFileName] = useState('')
-  const [view, setView] = useState('home') // 'home' | 'reader'
+  const [currentDocId, setCurrentDocId] = useState(null)
+  const [view, setView] = useState('home') // 'home' | 'library' | 'reader'
+  const [focusMode, setFocusMode] = useState(false)
+  const [resumeInfo, setResumeInfo] = useState(null) // { sentenceIndex, currentPage }
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
@@ -24,23 +28,43 @@ export function AppProvider({ children }) {
     setTheme(t => t === 'light' ? 'dark' : 'light')
   }, [])
 
+  const toggleFocusMode = useCallback(() => {
+    setFocusMode(f => !f)
+  }, [])
+
   const textSizeClass = {
     small: 'text-sm leading-relaxed',
     medium: 'text-base leading-relaxed',
     large: 'text-lg leading-loose',
   }[textSize]
 
-  const loadContent = useCallback((content, name = '') => {
-    if (Array.isArray(content)) {
-      setPages(content)
-      setText(content.join('\n\n'))
-      setCurrentPage(0)
-    } else {
-      setPages([content])
-      setText(content)
-      setCurrentPage(0)
-    }
+  const loadContent = useCallback((content, name = '', resume = null) => {
+    const pagesArr = Array.isArray(content) ? content : [content]
+    const fullText = Array.isArray(content) ? content.join('\n\n') : content
+    setPages(pagesArr)
+    setText(fullText)
+    setCurrentPage(resume?.currentPage || 0)
     setFileName(name)
+
+    const id = docId(name, fullText)
+    setCurrentDocId(id)
+
+    // Save to library
+    saveToLibrary({
+      id,
+      name,
+      text: fullText,
+      pages: pagesArr,
+      sentenceIndex: resume?.sentenceIndex || 0,
+      currentPage: resume?.currentPage || 0,
+    })
+
+    if (resume?.sentenceIndex > 0) {
+      setResumeInfo(resume)
+    } else {
+      setResumeInfo(null)
+    }
+
     setView('reader')
   }, [])
 
@@ -49,6 +73,9 @@ export function AppProvider({ children }) {
     setPages([])
     setCurrentPage(0)
     setFileName('')
+    setCurrentDocId(null)
+    setResumeInfo(null)
+    setFocusMode(false)
     setView('home')
   }, [])
 
@@ -59,7 +86,10 @@ export function AppProvider({ children }) {
       text, setText, pages, setPages,
       currentPage, setCurrentPage,
       fileName, setFileName,
+      currentDocId,
       view, setView,
+      focusMode, toggleFocusMode,
+      resumeInfo, setResumeInfo,
       loadContent, goBack,
     }}>
       {children}

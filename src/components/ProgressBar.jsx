@@ -24,21 +24,25 @@ export default function ProgressBar({
     return `~${m} min restante${m > 1 ? 's' : ''}`
   }, [sentences, currentSentenceIndex, isPlaying, rate, totalSentences])
 
-  const handleClick = (e) => {
+  const jumpFromPosition = (clientX, el) => {
     if (totalSentences === 0) return
-    const rect = e.currentTarget.getBoundingClientRect()
-    const x = e.clientX - rect.left
+    const rect = el.getBoundingClientRect()
+    const x = clientX - rect.left
     const ratio = x / rect.width
     const targetIndex = Math.floor(ratio * totalSentences)
     onJump(Math.max(0, Math.min(targetIndex, totalSentences - 1)))
   }
 
+  const handleClick = (e) => jumpFromPosition(e.clientX, e.currentTarget)
+  const handleTouch = (e) => jumpFromPosition(e.touches[0].clientX, e.currentTarget)
+
   return (
     <div className="space-y-1">
       <div
         onClick={handleClick}
-        className="group relative h-2 cursor-pointer rounded-full bg-warm-200 dark:bg-warm-700 overflow-hidden"
-        title="Cliquez pour sauter à un endroit"
+        onTouchStart={handleTouch}
+        className="group relative h-3 sm:h-2 cursor-pointer rounded-full bg-warm-200 dark:bg-warm-700 overflow-hidden touch-none"
+        title="Clique pour sauter à un endroit"
       >
         <div
           className="h-full rounded-full bg-lavender-400 dark:bg-lavender-500 transition-all duration-300"

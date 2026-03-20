@@ -1,20 +1,18 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { detectLanguage } from '../lib/detectLanguage'
 
 // Split text into sentences for chunking (handles French and English punctuation)
 function splitIntoSentences(text) {
   const sentences = []
-  // Split on sentence-ending punctuation followed by space or end
   const regex = /[^.!?…]+[.!?…]+[\s]?|[^.!?…]+$/g
   let match
   while ((match = regex.exec(text)) !== null) {
     const s = match[0].trim()
     if (s) sentences.push(s)
   }
-  // If no sentences found (no punctuation), split by newlines or chunk by words
   if (sentences.length === 0 && text.trim()) {
     const lines = text.split(/\n+/).filter(l => l.trim())
     if (lines.length > 1) return lines
-    // Single block without punctuation — chunk by ~100 chars
     const words = text.split(/\s+/)
     let chunk = ''
     for (const word of words) {
@@ -47,12 +45,11 @@ export function useSpeechSynthesis() {
   const isPlayingRef = useRef(false)
   const rateRef = useRef(rate)
   const selectedVoiceRef = useRef(selectedVoice)
+  const voicesRef = useRef([])
+  const onSentenceChangeRef = useRef(null)
 
-  // Keep refs in sync
   useEffect(() => { rateRef.current = rate }, [rate])
   useEffect(() => { selectedVoiceRef.current = selectedVoice }, [selectedVoice])
-
-  // Save rate
   useEffect(() => { localStorage.setItem('liseuse-rate', rate.toString()) }, [rate])
 
   // Load voices
@@ -60,7 +57,6 @@ export function useSpeechSynthesis() {
     const synth = synthRef.current
     const loadVoices = () => {
       const allVoices = synth.getVoices()
-      // Filter for French and English voices, then add the rest
       const frEn = allVoices.filter(v =>
         v.lang.startsWith('fr') || v.lang.startsWith('en')
       )
@@ -69,8 +65,8 @@ export function useSpeechSynthesis() {
       )
       const sorted = [...frEn, ...others]
       setVoices(sorted)
+      voicesRef.current = sorted
 
-      // Auto-select first French voice, or first available
       if (!selectedVoiceRef.current && sorted.length > 0) {
         const savedVoice = localStorage.getItem('liseuse-voice')
         const found = savedVoice && sorted.find(v => v.name === savedVoice)
@@ -91,12 +87,28 @@ export function useSpeechSynthesis() {
     return () => synth.removeEventListener('voiceschanged', loadVoices)
   }, [])
 
-  // Save selected voice name
   useEffect(() => {
     if (selectedVoice) {
       localStorage.setItem('liseuse-voice', selectedVoice.name)
     }
   }, [selectedVoice])
+
+  // Auto-detect language and select voice
+  const autoSelectVoice = useCallback((text) => {
+    const lang = detectLanguage(text)
+    const allVoices = voicesRef.current
+    if (allVoices.length === 0) return
+
+    // Check if current voice already matches
+    if (selectedVoiceRef.current?.lang.startsWith(lang)) return
+
+    // Find best voice for the detected language
+    const match = allVoices.find(v => v.lang.startsWith(lang))
+    if (match) {
+      setSelectedVoice(match)
+      selectedVoiceRef.current = match
+    }
+  }, [])
 
   const speakSentence = useCallback((index, sentenceList) => {
     const synth = synthRef.current
@@ -118,11 +130,11 @@ export function useSpeechSynthesis() {
       const next = sentenceIndexRef.current + 1
       sentenceIndexRef.current = next
       setCurrentSentenceIndex(next)
+      onSentenceChangeRef.current?.(next)
       speakSentence(next, sentenceList)
     }
 
     utterance.onerror = (e) => {
-      // 'interrupted' and 'canceled' are normal when stopping/pausing
       if (e.error === 'interrupted' || e.error === 'canceled') return
       console.error('Speech error:', e.error)
     }
@@ -135,11 +147,14 @@ export function useSpeechSynthesis() {
     const synth = synthRef.current
     synth.cancel()
 
+    // Auto-detect language on first play
+    autoSelectVoice(text)
+
     const sentenceList = splitIntoSentences(text)
     setSentences(sentenceList)
 
     const idx = startIndex !== null ? startIndex : sentenceIndexRef.current
-    const safeIdx = Math.min(idx, sentenceList.length - 1)
+    const safeIdx = Math.max(0, Math.min(idx, sentenceList.length - 1))
     sentenceIndexRef.current = safeIdx
     setCurrentSentenceIndex(safeIdx)
     setIsPlaying(true)
@@ -147,7 +162,7 @@ export function useSpeechSynthesis() {
     isPlayingRef.current = true
 
     speakSentence(safeIdx, sentenceList)
-  }, [speakSentence])
+  }, [speakSentence, autoSelectVoice])
 
   const pause = useCallback(() => {
     synthRef.current.pause()
@@ -204,7 +219,11 @@ export function useSpeechSynthesis() {
     }
   }, [speakSentence])
 
-  // Cleanup on unmount
+  // Allow external listener for sentence changes (used for auto page turn)
+  const onSentenceChange = useCallback((callback) => {
+    onSentenceChangeRef.current = callback
+  }, [])
+
   useEffect(() => {
     return () => {
       synthRef.current.cancel()
@@ -229,5 +248,7 @@ export function useSpeechSynthesis() {
     skipBackward,
     jumpToSentence,
     splitIntoSentences,
+    autoSelectVoice,
+    onSentenceChange,
   }
 }

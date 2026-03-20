@@ -1,4 +1,5 @@
 import { useApp } from '../contexts/AppContext'
+import SleepTimer from './SleepTimer'
 
 export default function AudioControls({
   isPlaying,
@@ -15,7 +16,7 @@ export default function AudioControls({
   selectedVoice,
   onVoiceChange,
 }) {
-  const { text } = useApp()
+  const { text, focusMode } = useApp()
 
   const handlePlayPause = () => {
     if (!isPlaying) {
@@ -38,11 +39,37 @@ export default function AudioControls({
     return groups
   }, {})
 
+  if (focusMode) {
+    return (
+      <div className="flex items-center justify-center gap-3">
+        <button
+          onClick={handlePlayPause}
+          disabled={!text}
+          className="p-4 rounded-full bg-gradient-to-br from-lavender-500 to-lavender-700 text-white
+            hover:from-lavender-600 hover:to-lavender-700 active:scale-95 disabled:opacity-40
+            transition-all shadow-lg shadow-lavender-600/30"
+        >
+          {isPlaying && !isPaused ? (
+            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+          ) : (
+            <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5.14v14.72a1 1 0 001.5.86l11-7.36a1 1 0 000-1.72l-11-7.36A1 1 0 008 5.14z" />
+            </svg>
+          )}
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-3">
       {/* Main controls row */}
       <div className="flex items-center justify-center gap-2 sm:gap-3">
-        {/* Skip backward */}
+        <SleepTimer onTimerEnd={onStop} />
+
         <button
           onClick={() => onSkipBackward(text)}
           disabled={!isPlaying}
@@ -55,7 +82,6 @@ export default function AudioControls({
           </svg>
         </button>
 
-        {/* Play / Pause */}
         <button
           onClick={handlePlayPause}
           disabled={!text}
@@ -76,7 +102,6 @@ export default function AudioControls({
           )}
         </button>
 
-        {/* Stop */}
         <button
           onClick={onStop}
           disabled={!isPlaying}
@@ -89,7 +114,6 @@ export default function AudioControls({
           </svg>
         </button>
 
-        {/* Skip forward */}
         <button
           onClick={() => onSkipForward(text)}
           disabled={!isPlaying}
@@ -104,10 +128,9 @@ export default function AudioControls({
       </div>
 
       {/* Speed & voice row */}
-      <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-4">
-        {/* Speed control */}
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs text-warm-400 dark:text-warm-500 w-8">
+          <span className="text-xs text-warm-400 dark:text-warm-500 w-8 text-right tabular-nums">
             {rate}x
           </span>
           <input
@@ -121,7 +144,6 @@ export default function AudioControls({
           />
         </div>
 
-        {/* Voice selector */}
         <select
           value={selectedVoice?.name || ''}
           onChange={(e) => {
@@ -129,10 +151,10 @@ export default function AudioControls({
             if (voice) onVoiceChange(voice)
           }}
           className="
-            text-sm rounded-lg border border-warm-200 dark:border-warm-600
+            w-full sm:w-auto text-sm rounded-lg border border-warm-200 dark:border-warm-600
             bg-white dark:bg-warm-800 text-warm-700 dark:text-warm-300
             px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-lavender-300
-            dark:focus:ring-lavender-600/30 max-w-[200px] sm:max-w-[250px]
+            dark:focus:ring-lavender-600/30 max-w-full sm:max-w-[250px]
           "
         >
           {Object.entries(voiceGroups).map(([lang, groupVoices]) => (
