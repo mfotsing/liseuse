@@ -76,10 +76,10 @@ export default function FileUploader() {
         <>
           <div className="mb-4 text-4xl">📄</div>
           <p className="text-lg font-medium text-warm-700 dark:text-warm-300">
-            Glissez un PDF ici
+            Glisse ton PDF ici
           </p>
           <p className="mt-1 text-sm text-warm-400 dark:text-warm-500">
-            ou cliquez pour sélectionner un fichier
+            ou clique pour en choisir un
           </p>
         </>
       )}

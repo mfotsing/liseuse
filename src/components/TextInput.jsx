@@ -16,7 +16,7 @@ export default function TextInput() {
       <textarea
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="Collez votre texte ici — article, email, notes…"
+        placeholder="Colle ton texte ici — article, email, recette…"
         className="
           w-full h-40 sm:h-48 resize-none rounded-2xl border border-lavender-200 dark:border-warm-600
           bg-white dark:bg-warm-800 p-4 text-warm-800 dark:text-warm-200
@@ -37,7 +37,7 @@ export default function TextInput() {
           transition-all
         "
       >
-        Lire ce texte
+        Lis-moi ça
       </button>
     </div>
   )

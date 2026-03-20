@@ -119,14 +119,14 @@ export default function App() {
             Liseuse de Loupiotte
           </h1>
           <p className="text-warm-500 dark:text-warm-400">
-            Écoutez vos documents, simplement.
+            Ta liseuse perso, mon amour.
           </p>
         </div>
 
         <div className="space-y-6">
           <div>
             <h2 className="text-sm font-medium text-warm-500 dark:text-warm-400 mb-3 uppercase tracking-wide">
-              Importer un PDF
+              Dépose ton PDF ici
             </h2>
             <FileUploader />
           </div>
@@ -139,14 +139,14 @@ export default function App() {
 
           <div>
             <h2 className="text-sm font-medium text-warm-500 dark:text-warm-400 mb-3 uppercase tracking-wide">
-              Coller du texte
+              Ou colle ton texte
             </h2>
             <TextInput />
           </div>
         </div>
 
         <p className="text-center text-xs text-warm-400 dark:text-warm-600 mt-12">
-          Tout reste sur votre appareil. Aucune donnée n'est envoyée.
+          Tout reste sur ton appareil. Rien ne sort d'ici.
         </p>
 
         <p className="text-center text-xs text-lavender-400 dark:text-lavender-500 mt-4">
