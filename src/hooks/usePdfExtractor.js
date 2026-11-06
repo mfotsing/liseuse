@@ -18,7 +18,10 @@ export function usePdfExtractor() {
 
     try {
       const arrayBuffer = await file.arrayBuffer()
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+      // isEvalSupported: false stops pdf.js from turning code found inside the
+      // file (PostScript functions) into JavaScript with new Function().
+      // Text extraction never needs it, and the CSP in vercel.json forbids eval.
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer, isEvalSupported: false }).promise
       const numPages = pdf.numPages
       const pages = []
 
